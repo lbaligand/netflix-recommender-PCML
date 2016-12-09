@@ -1,3 +1,10 @@
-1- Put methods in project
-2- Find errors in ALS in ex10baligand and ex10Chris
-3- 
+Create a submission function
+Try to normalize the data
+Try other initial conditions
+Find good values of K
+Find good lambdas 
+polynomials ? (not sure if relevant)
+Look at the litterature on the internet
+
+Put methods in project DONE
+Find errors in ALS in ex10baligand and ex10Chris DONE
