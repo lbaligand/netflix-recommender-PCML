@@ -15,7 +15,7 @@ def read_txt(path):
 
 def load_data(path_dataset):
     """Load data in text format, one rating per line, as in the kaggle competition."""
-    data = read_txt(path_dataset)[1:]
+    data = read_txt(path_dataset)[1:] # First line is ID,prediction
     return preprocess_data(data)
 
 
@@ -73,3 +73,6 @@ def calculate_mse(real_label, prediction):
     """calculate MSE."""
     t = real_label - prediction
     return 1.0 * t.dot(t.T)
+
+def create_submission(prediction):
+    raise NotImplemented

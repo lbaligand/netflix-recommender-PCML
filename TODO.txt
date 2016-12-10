@@ -5,6 +5,7 @@ Find good values of K
 Find good lambdas 
 polynomials ? (not sure if relevant)
 Look at the litterature on the internet
+randomize data or sort by number of ratings ?
 
 Put methods in project DONE
 Find errors in ALS in ex10baligand and ex10Chris DONE
