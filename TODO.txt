@@ -7,5 +7,13 @@ polynomials ? (not sure if relevant)
 Look at the litterature on the internet
 randomize data or sort by number of ratings ?
 
+
+remove item and users < threshold in train and test but know which indices you removed. LOUIS is working
+insert in item_features, and user_features the removed items and users with features calculated with the allready in place features. LOUIS is working
+Recalculate the inserted items/users's features with one iteration of the for in update_user_feature and update_item_features. PACE is working on it
+
+
+
+
 Put methods in project DONE
 Find errors in ALS in ex10baligand and ex10Chris DONE
