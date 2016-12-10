@@ -18,15 +18,16 @@ def load_data(path_dataset):
     data = read_txt(path_dataset)[1:] # First line is ID,prediction
     return preprocess_data(data)
 
-
-def preprocess_data(data):
-    """preprocessing the text data, conversion to numerical array format."""
-    def deal_line(line):
+def deal_line(line):
         pos, rating = line.split(',')
         row, col = pos.split("_")
         row = row.replace("r", "")
         col = col.replace("c", "")
         return int(row), int(col), float(rating)
+
+def preprocess_data(data):
+    """preprocessing the text data, conversion to numerical array format."""
+    
 
     def statistics(data):
         row = set([line[0] for line in data])
