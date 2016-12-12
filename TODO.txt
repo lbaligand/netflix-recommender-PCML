@@ -1,13 +1,21 @@
+Find good lambdas (chris et Louis)
+Find good values of K (maybe 20 features is too low for 10K movies) (chris et louis)
+changer min_number_features (pace)
+use item_features instead of full_item_features in fill added ellements (et dans l'autre sens) (marche pas pour train)
+lancer fill_added_user pls fois (pace)
+reflechir sur quoi mettre dans add_remove_elements (mean ?)
+mettre sur master (pace)
+Look at the litterature on the internet (pace)
+
 Create a submission function
 Try to normalize the data
 Try other initial conditions
-Find good values of K (maybe 20 features is too low for 10K movies)
-Find good lambdas 
-polynomials ? (not sure if relevant)
-Look at the litterature on the internet
+
+
 randomize data or sort by number of ratings ?
 Try the threshold modification (threhsold should be close to the number of features so that a user with only one rating doesn't get all its features to smth crazy)
 new line in output
+
 
 
 remove item and users < threshold in train and test but know which indices you removed. DONE
