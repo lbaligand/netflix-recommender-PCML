@@ -144,6 +144,10 @@ def ALS(train, test, lambda_user, lambda_item, k):
 
     nz_row_te, nz_col_te = test.nonzero()
     nz_test = list(zip(nz_row_te, nz_col_te))
-    rmse_test = compute_error(test, user_features, item_features, nz_test)
+    if len(nz_test)==0:
+        rmse_test=-1
+    else:
+        rmse_test = compute_error(test, user_features, item_features, nz_test)
     print("RMSE on test data: {}.".format(rmse_test))
+
     return user_features, item_features, error_table, rmse_test
