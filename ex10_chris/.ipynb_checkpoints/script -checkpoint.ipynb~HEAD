@@ -1,0 +1,738 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "# Useful starting lines\n",
+    "%matplotlib inline\n",
+    "\n",
+    "import numpy as np\n",
+    "import scipy\n",
+    "import scipy.io\n",
+    "import scipy.sparse as sp\n",
+    "import matplotlib.pyplot as plt\n",
+    "%load_ext autoreload\n",
+    "%autoreload 2"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Load the Data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "number of items: 10000, number of users: 1000\n"
+     ]
+    }
+   ],
+   "source": [
+    "from helpers import load_data\n",
+    "\n",
+    "path_dataset = \"../Data/data_train.csv\"\n",
+    "ratings = load_data(path_dataset).T # ratings: row = user, column = item"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Plot the number of ratings per movie and user"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAakAAAEbCAYAAABgLnslAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\nAAALEgAACxIB0t1+/AAAIABJREFUeJzt3Xm81FX9x/HXGxBURMAUKFBRUQRTgRRTUUlJJRNt0Uwr\nEW1xNzUBrVxKUctc0xY3cvdnuWSmiHhdyh0uqCDiggohqAjmkiJ8fn+c79UB78yde+93vfN5Ph7z\nYObLzDlnmPlw5ns+53uOzAznnHMuj9pl3QDnnHOuHO+knHPO5ZZ3Us4553LLOynnnHO55Z2Uc865\n3PJOyjnnXG4l3klJ6irp/yTNkvSspO0kdZc0SdJsSfdI6lry/PGS5kTP3z3p9jmXd5LmSpouaZqk\nx6NjzY4hSUMkzZD0vKQLsngvzjVXGmdSFwJ3mdkAYGvgOWAcMNnM+gNTgPEAkgYC+wMDgJHApZKU\nQhudy7MVwHAzG2xmQ6NjLYmhy4BDzWwzYDNJe6T5JpxriUQ7KUlrAzuZ2VUAZvaxmS0F9gEmRk+b\nCOwb3R8F3Bg9by4wBxiKc7VNfDZWmxVDknoBXczsieh5fyl5jXO5lfSZ1EbAm5KukjRV0p8krQn0\nNLOFAGb2OtAjen5v4LWS18+PjjlXywy4V9ITkg6LjjU3hnoD80qOz8NjyxVAhxTKHwIcaWZPSjqf\nMEyx6lpMvjaTc+XtaGYLJK0HTJI0G48hVyOS7qTmAa+Z2ZPR478SOqmFknqa2cJoGGJR9PfzgfVL\nXt8nOrYSSR6QrtXMrBD5TjNbEP35hqTbCEPgzY2hqmILPL5cPOKKr0SH+6LhiNckbRYd2g14FrgD\nGB0dOxi4Pbp/B3CApI6SNgL6AY+XKTvV26mnnup1tqE6i0LSmpLWiu53BnYHnqaZMWRhSHCppKHR\nRIoflLzmM4r8eXv52dcRp6TPpACOAa6TtBrwEnAI0B64WdIY4BXCbCTMbKakm4GZwDLgCIv7HbfQ\n3Llzvc42VGeB9ARujc5uOgDXmdkkSU/S/Bg6ErgaWJ0w4/budN9KkPTn7eXno464JN5Jmdl0YNtG\n/mpEmedPACYk2ijnCsLMXgYGNXJ8Mc2MITN7Ctgy7jY6lyRfcaJKo0eP9jrbUJ0uO0l/3l5+PuqI\ni3IymtYskvIyCugKShJWkIkTafP4cq0VZ3z5mVSV6urqvM42VKfLTtKft5efjzri4p2Uc8653PLh\nPleTfLivPI8v11o+3Oecc64meCdVpVrJ1dRKnS47Rc/pFL38tOqIi3dSzjnncstzUq4meU6qPI8v\n11qek3LOOVcTvJOqUq3kamqlTpedoud0il5+WnXExTsp55xzueU5KVeTPCdVnseXay3PSTnnnKsJ\n3klVqVZyNbVSp8tO0XM6RS8/rTri4p2Uc8653PKclKtJnpMqz+PLtZbnpJxzztUE76SqVCu5mlqp\n02Wn6DmdopefVh1x8U7KOedcbnlOytUkz0mV5/HlWstzUs4552qCd1JVqpVcTa3U6bJT9JxO0ctP\nq464eCflnHMutzwn5WqS56TK8/hyreU5KeecczXBO6kq1UquplbqdNkpek6n6OWnVUdcvJNyzjmX\nW56TcjXJc1LleXy51vKclHPOuZqQeCclaa6k6ZKmSXo8OtZd0iRJsyXdI6lryfPHS5ojaZak3ZNu\nX7VqJVdTK3W67BQ9p1P08tOqIy5pnEmtAIab2WAzGxodGwdMNrP+wBRgPICkgcD+wABgJHCpJB+S\ncc65GpV4TkrSy8A2ZvZWybHngF3MbKGkXkCdmW0uaRxgZnZO9Lx/AqeZ2WOrlOlj5q5VPCdVnseX\na62i5aQMuFfSE5IOi471NLOFAGb2OtAjOt4beK3ktfOjY84552pQGp3UjmY2BPgacKSknQgdV6nc\n/2yrlVxNrdTpslP0nE7Ry0+rjrh0SLoCM1sQ/fmGpNuAocBCST1LhvsWRU+fD6xf8vI+0bHPGD16\nNH379gWgW7duDBo0iOHDhwOffgBxPq6vr0+0/MYeN0irvqwe19fXJ15ffX09S5YsAWDu3Lk454oh\n0ZyUpDWBdmb2rqTOwCTgdGA3YLGZnSNpLNDdzMZFEyeuA7YjDPPdC2y66gC5j5m71vKcVHkeX661\n4oyvpM+kegK3SrKoruvMbJKkJ4GbJY0BXiHM6MPMZkq6GZgJLAOO8GhxzrnalWhOysxeNrNB0fTz\nLc3s7Oj4YjMbYWb9zWx3M1tS8poJZtbPzAaY2aQk29cctZKrqZU6i0ZSO0lTJd0RPW72tYaShkia\nIel5SRdk8T6g+DmdopefVh1x8RUnnCuGYwkjDA1acq3hZcChZrYZsJmkPdJqvHMt5Wv3uZpUpJyU\npD7AVcCZwPFmNqq51xoShtWnmNnA6PgB0esPb6Q+jy/XKkW7Tso51zrnAz9j5Us1mnutYW9gXsnx\neVS4BtH7KJcX3klVqVZyNbVSZ1FI2gtYaGb1QKVfprF2K8uWxVnayoqe0yl6+WnVEZfEr5NyzrXK\njsAoSV8D1gC6SLoGeL2Z1xpWfQ0iwPe+N5qBA/sC8V+HmPR1cV5+04/jvu4zyesQPSflalKRclIN\nJO0CnBDlpM4F3mrOtYaSHgWOAZ4A/gFcZGZ3N1KPzZxpDBiQ1jtzbU2RrpNyziXjbJp/reGRwNXA\n6sBdjXVQDd5/P8GWO9cMnpOqUq3kamqlziIyswfMbFR0v9nXGprZU9H1ipua2bGV6nrvveTeR9Fz\nOkUvP6064uKdlHPuM/xMyuWF56RcTSpiTiotkuyWW4xvfSvrlriiSjUnJWkbYCfgC8AHwDPAvWb2\ndhwNcK6tK2IM+ZmUy4uyw32SDpE0lbDcyhrAbMI012HAZEkTJW2QTjOzVyu5mlqpMw1FjiHPSbXd\n8tOqIy6VzqTWJGxY+EFjfylpELAp8GoSDXOuDShsDC1a1PRznEuD56RcTfKcVHmS7Cc/MS67LOuW\nuKJKJScl6aJKLzSzY+JogHNtVZFj6M03s26Bc0GlKehPRbfVgSHAnOg2COiYfNPypVZyNbVSZ0oK\nG0NvvJFc2UXP6RS9/LTqiEvZMykzmwgg6XBgmJl9HD3+A/BQOs1zrriKHEMLFmTdAueCJnNSkmYD\n25vZ4uhxd+DRaLO1THhOyrVWmjmpPMZQJZKsSxfjnXeybokrqrTX7jsbmCbpfsJWATsTNlFzzlWn\ncDH0wQfw0UfQMdeDkq4WNLkskpldRVhR+Vbgb4RfhBOTblje1EquplbqTFMRY6hXL5g3r+nntUTR\nczpFLz+tOuLSZCclScAIYGszux3oKGlo4i1zro0oYgz17u3XSrl8qCYndRmwAtjVzAZE4+mTzGzb\nNBpYpk2ek3KtknJOKncxVIkk22MP47jjYM89s26NK6K0c1LbmdkQSdMAzOxtST5S7Vz1ChdDXbvC\n27ldWdDVkmq26lgmqT1gAJLWI/wqrCm1kquplTpTVrgY6tABpk9Ppuyi53SKXn5adcSlmk7qIkLC\nt4ekM4GHgQmJtsq5tqVwMTRwILTz3eZcDlS1dp+kzYHdCNNn7zOzWUk3rIn22PLl5kHkWizttfvy\nFkOVSLLzzjNefRUuuCDr1rgiSns/qWvM7PvAc40cy8yyZdCpU5YtcK46eY2hStZYI1wr5VzWqjkX\n2aL0QTS2/qVkmlO9ZcvSra9WcjW1UmfKchlDlSTZSRU9p1P08tOqIy6VNj0cL+m/wFaS3olu/yVs\n2nZ7ai0s46OPsm6Bc5XlPYYq8TMplxcVc1KS2gGXm9mY9JrUNEn2+utGz55Zt8QVVVo5qbzGUCWS\n7PbbjT/9Ce68M+vWuCKKM74qDveZ2Qoglxcc+pmUK4I8x1Ala68NS5dm3QrnqstJTZXUqiCT1E7S\nVEl3RI+7S5okabakeyR1LXnueElzJM2StHu5MtPupGolV1Mrdaas1TGUtg03hFdeSabsoud0il5+\nWnXEpZpOajvgEUkvSpoh6WlJM5pZz7HAzJLH44DJ0VYFU4DxAJIGAvsDA4CRwKXRumefkfbECeda\nIY4YStX668Prr/uIhcteNWv3bdjYcTOr6neWpD7AVcCZwPFmNkrSc8AuZrZQUi+gzsw2lzQuFG3n\nRK/9J3CamT22Spk2fbqx1VbVtMC5z0p57b5WxVDaGtbG7NsX7rkH+udy1yuXZ6nlpOCTQOoG7B3d\nujUzuM4Hfka0JEykp5ktjMp/HegRHe8NvFbyvPnRsc/wX3iuKGKIoUwMGQIPP5x1K1ytq+Zi3mOB\nHxL2wQG4VtKfzOziKl67F7DQzOolDa/w1GYvaf7LX45m6NC+AHTr1o1BgwYxfHioomG8Nc7H9fX1\nHHfccYmV39jjhmNp1VdaV1r1AVxwwQWpfH5LliwBYO7cuaSpNTGUpc03D0N+caurq/vks0mCl5+P\nOmJjZhVvwAygc8njzsCMpl4XPfcs4FXgJWAB8C5wDTCLcDYF0AuYFd0fB4wtef3dhBWkVy3X6uos\nVffff3+6FXqdiQpf/aa/w3HcWhNDWdyifxs7/3yzo49uzb9y45L+vL387OuIM76qyUk9DWxrZv+L\nHq8OPGFmWzanM5S0C3CChZzUucBbZnaOpLFAdzMbF02cuI6QaO4N3Atsaqs0UpLde68xYkRzWuDc\np1LOScUSQ2lpyEndcAPcfjvceGPWLXJFk/Z+UlcBj0m6lbA45j7AFa2s92zgZkljgFcIM/ows5mS\nbibMBFwGHLFqB9XAc1KuQJKIocT16AELF2bdClfrqpk48TvgEGAx8BZwiJk1e21kM3vAzEZF9xeb\n2Qgz629mu5vZkpLnTTCzfmY2wMwmlSvPr5PyOosirhhK2zrrJLPxYdGvMyp6+WnVEZdqJk5sAjxr\n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\n",
+      "text/plain": [
+       "<matplotlib.figure.Figure at 0x7fb1d0426c50>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "min # of items per user = 3, min # of users per item = 8.\n"
+     ]
+    }
+   ],
+   "source": [
+    "from plots import plot_raw_data\n",
+    "\n",
+    "num_items_per_user, num_users_per_item = plot_raw_data(ratings)\n",
+    "\n",
+    "print(\"min # of items per user = {}, min # of users per item = {}.\".format(\n",
+    "        min(num_items_per_user), min(num_users_per_item)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Split the data into a train and test set"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def split_data(ratings, num_items_per_user, num_users_per_item,\n",
+    "               min_num_ratings, p_test=0.1):\n",
+    "    \"\"\"split the ratings to training data and test data.\n",
+    "    Args:\n",
+    "        min_num_ratings: \n",
+    "            all users and items we keep must have at least min_num_ratings per user and per item. \n",
+    "    \"\"\"\n",
+    "    # set seed\n",
+    "    np.random.seed(988)\n",
+    "    \n",
+    "    # select user and item based on the condition.\n",
+    "    valid_users = np.where(num_items_per_user >= min_num_ratings)[0]\n",
+    "    valid_items = np.where(num_users_per_item >= min_num_ratings)[0]\n",
+    "    valid_ratings = ratings[valid_items, :][: , valid_users]  \n",
+    "    \n",
+    "    \n",
+    "    train = valid_ratings.copy()\n",
+    "    test = valid_ratings.copy()\n",
+    "    train_full = ratings.copy()\n",
+    "    test_full = ratings.copy()\n",
+    "    \n",
+    "    # split the data and return train and test data.\n",
+    "    for u in range(valid_ratings.shape[1]):\n",
+    "        non_zero_ratings = valid_ratings[:, u].nonzero()\n",
+    "        mask_test = np.random.choice(2, non_zero_ratings[0].shape, p=[1-p_test, p_test]).astype(bool)\n",
+    "        test_idxs = non_zero_ratings[0][mask_test]\n",
+    "        train_idxs = non_zero_ratings[0][~mask_test]\n",
+    "        train[test_idxs, u] = 0\n",
+    "        test[train_idxs, u] = 0\n",
+    "        \n",
+    "    # split the data and return train and test data before threshold.\n",
+    "    for u in range(ratings.shape[1]):\n",
+    "        non_zero_ratings = ratings[:, u].nonzero()\n",
+    "        mask_test = np.random.choice(2, non_zero_ratings[0].shape, p=[1-p_test, p_test]).astype(bool)\n",
+    "        test_idxs = non_zero_ratings[0][mask_test]\n",
+    "        train_idxs = non_zero_ratings[0][~mask_test]\n",
+    "        train_full[test_idxs, u] = 0\n",
+    "        test_full[train_idxs, u] = 0\n",
+    "        \n",
+    "    print(\"Total number of nonzero elements in origial data:{v}\".format(v=ratings.nnz))\n",
+    "    print(\"Total number of nonzero elements in train data:{v}\".format(v=train.nnz))\n",
+    "    print(\"Total number of nonzero elements in test data:{v}\".format(v=test.nnz))\n",
+    "    \n",
+    "    return valid_ratings, train, test, valid_users, valid_items, train_full, test_full"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "collapsed": false,
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Total number of nonzero elements in origial data:1176952\n",
+      "Total number of nonzero elements in train data:1058411\n",
+      "Total number of nonzero elements in test data:116778\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAakAAAA8CAYAAADc8EUfAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz\nAAALEgAACxIB0t1+/AAAEVtJREFUeJztnXuU3VV1xz/fyZOEPFGgISEEEVAWlKA8BCwoEgQEUhQb\nEIg2i1raArYWCVCMNau1UA3is0JRAQ1QngmYBchLCAWTCjFAQghPkwBDJGHyoAnDsPvHPrf3l2Ee\nvztzZ+79zezPWr819/7u+Z19zp2z7z5nn33OkZkRBEEQBPVIQ60LEARBEATtEUYqCIIgqFvCSAVB\nEAR1SxipIAiCoG4JIxUEQRDULWGkgiAIgroljFQBkdQgaaOk8dVMW4VyHSXpxZ6WEwRFRNKrkg6t\ndTmKRhipXiAZiQ3papH0VubeqZXmZ2bvmtkIM1tdzbRVItfCO0kzJD3Q04UJ+jfV1r1Mvo9KOq2a\nZc3kPUTSu5LG9UT+RaPPGClJn5b0jKRnJV1QpTzHS7pf0tOSnpR0bro/RtI9klZIulvSqMwzF0pa\nKWm5pCkAZjYCOBJ4CWgBFiTDMdLMrm9D7oBW7xskPS5pflfkp/sHSFqavp/v5qz/KEk3pbyelnRw\nR7KBU4EJOWWLTgyapL+X9FR69peSBvdW3fsz9axL6X7u/2dGz0YCLwOrgQfS+7u6KhvYHzijgvqP\nAkYDc3PoktLfhdVqy4XWJTMr/IUb2+eAicAgYAmwdxXy3RnYP73eHlgB7A1cCnwt3b8A+Lf0+sPA\nE8BAYLdUJqXPfgscCLyYXh+TkTMbuAGYCzQBZwKHAI8C64E3gWeA+Sn9ZcC7wK5J/lPAFcBDuBF8\nBDgsyR+Q0j6R5F+XyrAI2JDSTsyU5dhUz/XAMuDZVJ6BwKhWdb84yV6X0q0BXsjU/WLgeeCd9P4E\nYAHwV8D/As3ARuD1lN8JqZxNwKqU7+D02Y3A9O589+n1gux3H1dxdanS/yfwBvDrjB5dmmRekj7b\nnPTjwCR7BDA/6dR6XB//B/hFatMt6Zl/b0feDNwwNgKLUx6HpjodnfTlLdxwPpSp+1K8A7cp6ccr\nwPtSXZvx34PbgXvz1B0Yh+tlIXWpr4ykDgJWmtnLZtaM/+Cf1N1Mzew1M1uSXm8ClgPjU97XpGTX\nAFPT6xOBG8zsHTN7CVgJHCRpZ2CEmS1O6e7JPFNiKvALMxuFN6Jm4FxgX+BJYBjeYEpySqOQa4AJ\n+ChmCW4YVgFfLslPaYdn5I/FlWdMSjsbQNKOSfZXgUnAjviPFalOTa3qvktKtxtwC24QydS9JZX1\nWeCfcCN8GzAZ+DvgYfOe7o4pv43Aaek7mI4bxamSBgLb4Urd3e/+2ja++6BM0XQp1/9TPic7DP9h\nLXESbjA/BRyB60Iz8CO83l8CtuCG7VhgFq5Hp+NG54fAtWZ2fhvyJgOXA6cAHwL2BIan+r+DG5q3\ncf35OK5L09PjN+I6+0FzL8zvgY8C16fvYUL6fGieuicGAMOLqEt9xUjtgjewEqvTvaohaTd8iP8Y\nsJOZNYIrH/5j3lY51qR7u6QylVjbRvkWmtmClOdWM/tdagyXA+cAdwA7pLQ7kVwCSf5Q4OZ07w/A\nL1NZS/IFvJaRdR8wxMxaMmkBjgeeMLM7ceP0PG5ovinpSknDsnVP6VvMbAOu7NkfgDW4cRoKrDaz\nG3B358g26k6qy4Nmtjy9vh9YiPds1wBNZnYv3f/uq942+hhF06W85bscH5lnXcw7AV8AZprZU0n2\n7FS2ksF6Pz6iGYePtrJlWteB7M8BN5vZItyorMRHJj+TdCXwNDDazBrN7EXgSrzzSJIFZbffGtzA\nLsN1aSM+CtorT93N7BXgO/hvQ+F0aWBPC+gLSNoeNwLnmdkmSa3nUqqxS2+2USBpL/wHeh9gCjAY\nV5b2eA1XKHAXwvYdpF1HuUFm047LlGMgcADulrkMH/3MZNu6/gnu7iixtpWcT6Sy7y5pPd6THN1e\noSR9DPhXvM5DUrnmAl8EbpL0Bd77XccOyQWil3SptczjcZfb25R/+EtMABakcowGHk/3hwNX427K\nc/GR1vwKxI7DjQK4Lv0p7in4Ej66+jY+snkNH9kMaKNsWYbibsmPS3ozpd0uT0EkjcZHTRNxV3qh\ndKmvjKTW4PMzJcane90mDY9vBq4zs3npdqOkndLnOwOvZ8oxoY1ytL7//jbK17qB/AT3e6/De3DN\nwBhJ15EZFSX5WzqRD25QSoxsQz7Aq5nnV+MGa0x6fwtutP6/7rjib8jI3jOT1weBs4CvAM+Z2Rjc\n4I1NadtSiOuBm/De2QzcJdScRny34f787n73VWsbfZSi6VKe8h2Gu7DG427nT2b06BXgk/g8zIrU\nTi8BxprZ22Y2C5+HOQsPfton5Wm4Z6M92a11aTXlzuAtwDTcYByc3NuX40aUVKYs43GX5EhglZmN\nxjt/DTnqTnr2BTNbV0Rd6itGajGwh6SJkgbjDaCSXk9H/BRYZmZXZO7Nx3v34H7keZn701LkzCRg\nD2BRGko3SToopZuSeaY9RuATvBNwt1oTsN7MzgDuzKSbTnn0Mx+v+8B07YEHSABszMjfvx35dwKT\nU8/zj3jARWl0dhTuosjW/QXAUlTQYuDTAKnuk3Aj+2yq+7/gE+WHJ9mNwPj0w1Vi+1THZlwh9wYG\nSFKSv4xufPcpnzPbqXvgFEaX8v4/zewiM9sVNxSzgfuTHt2Bt6lLcZf6vDQv25RkHyPpU0n2QmAr\nsDnpUSMd6/F/ASdLOhAPmBiMu87B2/I7+FzzNEn7AGdT9kTchuvenpm6b8TnsdZLOho3tg2d1T3x\nB+AQSUMLqUs9HZnRWxf+A7kC9/3OrFKeh+ENawke7fJ4kjMWj6xZgQdBjM48cyEeDbMcmJK5/xG8\nUTYDt7SSMxv4aat7R+IRfRuAB/GJzbXps/fhPbnnk/zrga9n5K/Be2VTcDdCC27onkz5PZqRcxTe\nyyq9PxY3LOvx+apN+FzSrXggQ7bu9+GTvOtT3qXoo+VJ9rcojwTX4hF9dyc5g4Ffpc9eSfc+jwd0\nNOHRS7/FFXNpqv+gbn73K4Erat1W6/0qkC5V9P/EO1VfoRzdV5L9Ou62bkpt/5IkuxE3TG/ho5vL\nMrJXpXb/Bikqrg15M3AD0Yi7995O+d+KR7KuxI3V5lS2+zPPzqMcQXgJPmp5OKXdksrcUkHdZ6Xv\nsXC6VAorDIL3IKkBV87PmtkjtS5PEAT9j0K5+9QDiwyDbUkujlGShgBfx3t/izp5LCgYoUtBUajY\nSKVVyvv1RGE6kdsA/AA4Bp+8PFXS3r1djn7A4bjroRFfcDjVfI4oqDKhS0HQObmMlKQHJY2UNBb3\nJV8laU7PFu099Mgiw2BbzOwSM9vBzEab2WFm9njnTwV5CV0KgsrIO5IaZb5g82R8hfXBeFhjl1AX\n9vHCdyg4NLOXVCzKDIpI6FIQVELOyJAn8XU291Det2lpNyJ9urKP1wvAVZT3kjod+F4beVtccfXm\nVWHbL4Qu1fo7jav/Xe218bw7TnwTuBvfumexpN3xEMQuYR5v/1p6vUlSdh+vI1Kya/DQ65n4QrwF\nwB5m9pKklcDHKK/obsXQrhatmzTjkZ21opby+2vdt3SeZFsKpEu10iOIttzf5LevRzUNQU8TuEuB\n3fFtelbjkWQT8bU5B5nZGEnfxxeVnoyvo3ke37fqOEt7vWXytDBS/U12LeVvwcw62s6mV6i2LtVW\njyDacn+T374e5Q2cmCRpjqRbJc0vXVUo2fm46+Mp852RhwD3mtlewP2UtWQMfnTF1FTmo/Ge6PL3\nZgn+JZeulraTBEGXaGHb9lUZxdKl0KOgp8ivR3ndfbfjmy3egW/X0W0kTcQVay7pOAhcaX6VXi/A\nXSPge2QtM98lfIGktcAD7edeq15IrZed1VJ+f6n7gHSVqPjHu0C6VMvefLTlvi0/vx7lNVJbzOx7\n3SlSGzyEb/FxIr5x6sH4BNpt7mpAlJX4DeD45D8Xvm39m1UuTxUY0HmSPiu/P9e9IkKXchFtuf/K\n35a8RuoKSbPwiKStpZtdXUMj6R/xnZZXpfzepRwC29Gx4jl9/9nhYwP19qUHRaaFbg6ACqRLoUdB\nT5Ffj/IaqX2BM/At7Us5W3rfFXbGN098Bw+bHQj8Oa44U83saUn74kc1g7soHjWz4wCSi6Ldc4lq\n66YI+jbddvcVSJdCj4KeovruvlOA3c3s7U5T5uM6/MjkZfjuyFvx485PAT6DHwlxHNu6KA5PRwfs\ngu+gXYcuiiDolNClIKiAvEbqKby39XpnCSuQ+1G8V6f09yI8WP5rkmbjR0qUgufX49vob8J7nb+v\nUjmCoLcJXQqCCsgbxjEaeCZtr1KNsNlmvGf3YTP7AL6e4zO4y+KHZjYY+DHlMWAzfobSMHxNxz50\neCJkhM4GPUX3QtAplC6FHgU9RfVD0Gd1s0St+SNeyv0kLcHdDkvwo4mzE7qtJ3cb2rjXBuFLD3qK\nbs9JFUiXQo+CniK/HuUaSZnZb/BV64PS68X4Ds4dIulqSY2SlmbujQF+jofMLsZPax2G+9GHAV+V\ntBX3o5fKNw4YjrsofoeH3Nbhhpi17m3WUn5/rnt+QpfyEm25/8rflrw7TpwF3Az8JN3aBV+U2Bk/\nw8+syTITWIj39v4ZmINHHn0Z77qNxN0QoyhP9h4JfDu5Lh7rXGyt3BRVWZtZUPn9pe7d3nGiQLpU\nS3dftOW+LT+/HuWdk/pbPHJoA4CZrcT3B+sQM1uIT9RmOQn3gb8A/Ed6fxseNrsO2MHMXsL3Fdsg\naWfcLVGqybV0Oic1KHPF2o6gmgxg2/ZVMQXSpdCjoKfIr0d5jdTWbMispIG0v0iwM3bEjys4BA99\n3RE4Cg+dfQz4Yko3AngC72k+B0xLYbMteARTHGkeFJHQpSCogLyBE7+RdBGwnaSjgb/B9x7rEma2\nSNLNuOKMxHt3T+Nui7+Q9Je437y0fcxm4E58LchA/PydDhS74uMTqkit/bnhy69zCqRLtdQjiLbc\nn+WXyXVURzoGYAYwBVeCu83sqlwCfPPLO8xsv/R+OXCkmTUm98MDZvYhSTPxg68uTenuwiOhXi6l\nSfenAUeY2dkV1jUIak7oUhBURl533zlmdpWZnWJmnzOzqySdl/NZsW2o63zKbojpwLzM/WmSBkua\nBOwBLEqHujVJOkiSgDMzzwRB0QhdCoIKyDuSetzMDmh17wkzm9zJc3PxaKIdgEa8N3c7cBO+juNl\n4PNm9mZKfyHey2wGzjOze9L9j+ChtkOBBWaWV6mDoK4IXQqCyujQSEk6FTgNOBx4OPPRCOBdMzuq\nZ4sXBH2D0KUg6BqdBU78N/Aqvo3KdzL3N+JHVQdBkI/QpSDoArncfUGxSBPsd5rZvpl7s4CNZjan\ndiULguIQelQfdDiSkrSRttdwCI8eGtkjpQqqQVV7H5IGmFn9xKUWjNClwhJ6VGM6NFJmNqK3ChL0\nDpLOAf4an1BfZmanSRoGfB/ffWAQ8A0zu0PSdOBk/DC9hjSvciM+jzIQONvMHqlFPYpG6FLfIvSo\n98i7mDfoGwi4AJhkZs2SSr33i4H7zGyGpFHAIkn3ps8mA/uaWZOkfwDuMrNvpRDmYb1egyCoPaFH\nvUgYqb5Jey4Kwyfp50q6nfLGplOAEySdn94PBnZNr39tZk3p9WLgakmDgHlmFgfmBX2Z0KM6IO9i\n3qBYvAGMbXVvLLAWOB74AXAAsFjSALxn+Fkzm5yuSWa2Ij23uZSBmT0M/Bm+IenPJZ3ew/UIgloS\nelQHhJHqg5jZZuAVSZ8AkDQWP+ZhIbBrOsdoJr7X23DgbuDc0vOS9m8rX0m7Aq+b2dXAf+IKGgR9\nktCj+iDcfX2XM4EfSZqDuye+AawCHkg+dAFXmNkGSbOB76YD9Rrwox9ObCPPI4HzJTXj63vO7PFa\nBEFtCT2qMbFOKgiCIKhbwt0XBEEQ1C1hpIIgCIK6JYxUEARBULeEkQqCIAjqljBSQRAEQd0SRioI\ngiCoW8JIBUEQBHXL/wH3flzT42F4bAAAAABJRU5ErkJggg==\n",
+      "text/plain": [
+       "<matplotlib.figure.Figure at 0x7fb1da310b00>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "from plots import plot_train_test_data\n",
+    "\n",
+    "valid_ratings, train, test, valid_users, valid_items, train_full, test_full = split_data(\n",
+    "    ratings, num_items_per_user, num_users_per_item, min_num_ratings = 20, p_test = 0.1)\n",
+    "plot_train_test_data(train, test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Implementation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Initialize matrix factorization"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def init_MF(train, num_features):\n",
+    "    \"\"\"init the parameter for matrix factorization.\"\"\"\n",
+    "        \n",
+    "    # initalization\n",
+    "    num_items, num_users = train.shape\n",
+    "    item_features = np.random.randn(num_features, num_items)\n",
+    "    user_features = np.random.randn(num_features, num_users)\n",
+    "    \n",
+    "    # mean of for each item\n",
+    "    sums_train = train.sum(axis=1).reshape(num_items,)\n",
+    "    counts_train = np.diff(train.tocsr().indptr) # counts number of non zero value for each row\n",
+    "    mean_train_item = sums_train / counts_train\n",
+    "    \n",
+    "    item_features[0,:] = mean_train_item\n",
+    "    \n",
+    "    return user_features, item_features "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Cost function (RMSE)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "from helpers import calculate_mse\n",
+    "\n",
+    "def compute_error(data, user_features, item_features, nz):\n",
+    "    \"\"\"compute the loss (MSE) of the prediction of nonzero elements.\"\"\"\n",
+    "\n",
+    "    # initalization\n",
+    "    prediction = (item_features.T).dot(user_features)\n",
+    "    x, y = zip(*nz)\n",
+    "    \n",
+    "    # remove zero elements\n",
+    "    prediction_nz = prediction[x,y]\n",
+    "    data_nz = data[x,y]\n",
+    "        \n",
+    "    # rmse    \n",
+    "    return np.sqrt(calculate_mse(data_nz, prediction_nz).sum() / (data.nnz))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Learn the Matrix Factorization using SGD"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "def matrix_factorization_SGD(train, test):\n",
+    "    \"\"\"matrix factorization by SGD.\"\"\"\n",
+    "    # define parameters\n",
+    "    gamma = 0.01\n",
+    "    num_features = 20   # K in the lecture notes\n",
+    "    lambda_user = 0.1\n",
+    "    lambda_item = 0.7\n",
+    "    num_epochs = 5     # number of full passes through the train set\n",
+    "    errors = [0]\n",
+    "    \n",
+    "    # set seed\n",
+    "    np.random.seed(988)\n",
+    "\n",
+    "    # init matrix\n",
+    "    user_features, item_features = init_MF(train, num_features)\n",
+    "    \n",
+    "    # find the non-zero ratings indices \n",
+    "    nz_row, nz_col = train.nonzero()\n",
+    "    nz_train = list(zip(nz_row, nz_col))\n",
+    "    nz_row, nz_col = test.nonzero()\n",
+    "    nz_test = list(zip(nz_row, nz_col))\n",
+    "\n",
+    "    print(\"learn the matrix factorization using SGD...\")\n",
+    "    for it in range(num_epochs):        \n",
+    "        # shuffle the training rating indices\n",
+    "        np.random.shuffle(nz_train)\n",
+    "        \n",
+    "        # decrease step size\n",
+    "        gamma /= 1.2\n",
+    "        \n",
+    "        for d, n in nz_train:\n",
+    "        \n",
+    "            e_dn = train[d,n] - (item_features[:,d].T).dot(user_features[:,n])\n",
+    "            grad_user = e_dn * item_features[:, d] - lambda_user * user_features[:, n]\n",
+    "            grad_item =  (e_dn * user_features[:, n] - lambda_item * item_features[:, d])\n",
+    "            \n",
+    "            item_features[:, d] = item_features[:, d] + gamma * grad_item\n",
+    "            user_features[:, n] = user_features[:, n] + gamma * grad_user           \n",
+    "                \n",
+    "                \n",
+    "        regularized_term = lambda_user / 2 * np.linalg.norm(user_features) + lambda_item / 2 * np.linalg.norm(item_features)    \n",
+    "        rmse = compute_error(train, user_features, item_features, nz_train) \n",
+    "\n",
+    "        print(\"iter: {}, RMSE on training set: {}.\".format(it, rmse))\n",
+    "        \n",
+    "        errors.append(rmse)\n",
+    "    \n",
+    "    \n",
+    "    print(\"TEST\")\n",
+    "\n",
+    "    rmse = compute_error(test, user_features, item_features, nz_test)\n",
+    "    print(\"RMSE on test data: {}.\".format(rmse))   \n",
+    "\n",
+    "    return user_features, item_features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "#predicted_user_features, predicted_item_features = matrix_factorization_SGD(train, test) "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Learn the Matrix Factorization using Alternating Least Squares"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def update_user_feature(\n",
+    "        train, item_features, lambda_user,\n",
+    "        nnz_items_per_user, nz_user_itemindices):\n",
+    "    \"\"\"update user feature matrix.\"\"\"\n",
+    "    \n",
+    "    I = np.eye(item_features.shape[0])\n",
+    "    item_features_nz = item_features[:, nz_user_itemindices]\n",
+    "    train_nz = train[nz_user_itemindices]\n",
+    "    \n",
+    "    Ai = item_features_nz @ item_features_nz.T + lambda_user * I * nnz_items_per_user\n",
+    "    Vi = item_features_nz @ train_nz\n",
+    "\n",
+    "    updated_user_features = np.linalg.solve(Ai,Vi)\n",
+    "        \n",
+    "    return updated_user_features.reshape(item_features.shape[0],)\n",
+    "    \n",
+    "\n",
+    "def update_item_feature(\n",
+    "        train, user_features, lambda_item,\n",
+    "        nnz_users_per_item, nz_item_userindices):\n",
+    "    \"\"\"update item feature matrix.\"\"\"\n",
+    "    \n",
+    "    I = np.eye(user_features.shape[0])\n",
+    "    user_features_nz = user_features[:, nz_item_userindices]\n",
+    "    train_nz = train[:, nz_item_userindices]\n",
+    "    \n",
+    "    Ai = user_features_nz @ user_features_nz.T + lambda_item * I * nnz_users_per_item\n",
+    "    Vi = user_features_nz @ train_nz.T\n",
+    "    \n",
+    "    updated_item_features = np.linalg.solve(Ai,Vi)\n",
+    "    \n",
+    "    return updated_item_features.reshape(user_features.shape[0],)\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "from helpers import build_index_groups\n",
+    "\n",
+    "\n",
+    "def ALS(train, test):\n",
+    "    \"\"\"Alternating Least Squares (ALS) algorithm.\"\"\"\n",
+    "    # define parameters\n",
+    "    num_features = 20   # K in the lecture notes\n",
+    "    lambda_user = 0.065\n",
+    "    lambda_item = 0.065\n",
+    "    stop_criterion = 1e-3\n",
+    "    change = 1\n",
+    "    error_list = [0, 0]\n",
+    "        \n",
+    "    # set seed\n",
+    "    np.random.seed(988)\n",
+    "\n",
+    "    # init ALS\n",
+    "    user_features, item_features = init_MF(train, num_features)\n",
+    "    error_list[0] = 1000\n",
+    "    \n",
+    "    # Calculate arguments for the update of Z and W\n",
+    "    nnz_items_per_user = train.getnnz(axis=0)\n",
+    "    nnz_users_per_item = train.getnnz(axis=1)\n",
+    "    nz_train, nz_row_colindices, nz_col_rowindices = build_index_groups(train)   \n",
+    "    \n",
+    "    while (abs(error_list[0] - error_list[1]) > stop_criterion):\n",
+    "                \n",
+    "        # Fix W (item), estimate Z (user)\n",
+    "        for i, nz_user_itemindices in nz_col_rowindices:\n",
+    "            user_features[:,i] = update_user_feature(train[:,i], item_features, lambda_user, nnz_items_per_user[i], nz_user_itemindices)\n",
+    "\n",
+    "        # Fix Z, estimate W\n",
+    "        for j, nz_item_userindices in nz_row_colindices:\n",
+    "            item_features[:,j] = update_item_feature(train[j], user_features, lambda_item, nnz_users_per_item[j], nz_item_userindices)\n",
+    "        \n",
+    "        nz_row, nz_col = train.nonzero()\n",
+    "        nz_train = list(zip(nz_row, nz_col))\n",
+    "        error_list[change] = compute_error(train, user_features, item_features, nz_train)\n",
+    "    \n",
+    "        print(\"RMSE on train data: {}\".format(error_list[change]))\n",
+    "    \n",
+    "        if(change == 1):\n",
+    "            change = 0\n",
+    "        else:\n",
+    "            change = 1\n",
+    "        \n",
+    "    print(\"Converged\")\n",
+    "    \n",
+    "    print()\n",
+    "    \n",
+    "    nz_row_te, nz_col_te = test.nonzero()\n",
+    "    nz_test = list(zip(nz_row_te, nz_col_te))\n",
+    "    rmse = compute_error(test, user_features, item_features, nz_test)\n",
+    "    print(\"RMSE on test data: {}.\".format(rmse)) \n",
+    "    \n",
+    "    return user_features, item_features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {
+    "collapsed": false,
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "RMSE on train data: 0.9985920699581896\n",
+      "RMSE on train data: 0.951977090675755\n",
+      "RMSE on train data: 0.9182906282096603\n",
+      "RMSE on train data: 0.9027621970586462\n",
+      "RMSE on train data: 0.8938943624528516\n",
+      "RMSE on train data: 0.8880639379421906\n",
+      "RMSE on train data: 0.8839512290925096\n",
+      "RMSE on train data: 0.8809159167245061\n",
+      "RMSE on train data: 0.8785948287383052\n",
+      "RMSE on train data: 0.8767670353825483\n",
+      "RMSE on train data: 0.8752928587952645\n",
+      "RMSE on train data: 0.8740807076181512\n",
+      "RMSE on train data: 0.8730682289390804\n",
+      "RMSE on train data: 0.8722114959750515\n",
+      "Converged\n",
+      "\n",
+      "RMSE on test data: 0.9924204966449273.\n"
+     ]
+    }
+   ],
+   "source": [
+    "predicted_user_features, predicted_item_features = ALS(train, test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Post-processing"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def add_removed_elements(features, valid_indices, num_elements):\n",
+    "    \"\"\"Add removed users or items by replacing it with the mean\"\"\"\n",
+    "    \n",
+    "    full_features = np.zeros((features.shape[0], num_elements)) + np.mean(features, axis=1).reshape((-1,1))\n",
+    "    for i, Vi in enumerate(valid_indices):\n",
+    "        full_features[:, Vi] = features[:, i]\n",
+    "        \n",
+    "    return full_features\n",
+    "\n",
+    "\n",
+    "def unvalid_indexes(total_elements, valid_indices):\n",
+    "    \"\"\" Return the corresponding unvalid elements indices. If we remove the elements of \n",
+    "                valid_indices in a data set of size total_elements\"\"\"\n",
+    "    \n",
+    "    return np.delete(range(total_elements),valid_indices)\n",
+    "\n",
+    "\n",
+    "\n",
+    "def fill_added_user_features(full_item_features,full_user_features,users_idx_to_calculate,train_full,\n",
+    "                             lambda_user, nnz_items_per_user, nz_user_itemindices):\n",
+    "    \"\"\"update user feature matrix for a specific set of indices\"\"\"\n",
+    "    \n",
+    "    num_users = train_full.shape[1]\n",
+    "    K = full_item_features.shape[0]\n",
+    "    \n",
+    "    # Calculate usin full_item_features or item_features ?\n",
+    "    \n",
+    "    for n in users_idx_to_calculate:\n",
+    "        nz_item_features_per_user = full_item_features[:, nz_user_itemindices[n]]\n",
+    "        A = nz_item_features_per_user @ nz_item_features_per_user.T + nnz_items_per_user[n] * lambda_user*np.eye(K)\n",
+    "        ratings_per_user_nz_items=train_full[nz_user_itemindices[n],n] \n",
+    "        B = nz_item_features_per_user @ ratings_per_user_nz_items \n",
+    "        full_user_features[:, n] = np.linalg.solve(A, B)[:,0] \n",
+    "        \n",
+    "    return full_user_features\n",
+    "\n",
+    "\n",
+    "def fill_added_item_features(full_item_features,full_user_features,items_idx_to_calculate, train_full, lambda_item,\n",
+    "                              nnz_users_per_item, nz_item_userindices):\n",
+    "    \"\"\"update item feature matrix for a specific set of indices\"\"\"\n",
+    "    num_items = ratings.shape[0]\n",
+    "    K = full_user_features.shape[0]\n",
+    "    \n",
+    "    \n",
+    "    # Calculate usin full_user_features or user_features ?\n",
+    "    \n",
+    "    for d in items_idx_to_calculate:\n",
+    "        nz_user_features_per_item = full_user_features[:, nz_item_userindices[d]]\n",
+    "        A = nz_user_features_per_item @ nz_user_features_per_item.T + nnz_users_per_item[d]*lambda_item*np.eye(K)\n",
+    "        ratings_per_item_nz_users=train_full[d,nz_item_userindices[d]]     \n",
+    "        B = nz_user_features_per_item @ ratings_per_item_nz_users.T \n",
+    "        full_item_features[:, d] = np.linalg.solve(A, B)[:,0]\n",
+    "        \n",
+    "    return full_item_features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "def constuct_full_features(predicted_user_features, predicted_item_features,\n",
+    "                           valid_users_idx, valid_items_idx, \n",
+    "                           min_num_ratings, train_full,\n",
+    "                           lambda_user, lambda_item):\n",
+    "    \n",
+    "    if min_num_ratings == 0:\n",
+    "        full_user_features = predicted_user_features\n",
+    "        full_item_features = predicted_item_features\n",
+    "    \n",
+    "    else:\n",
+    "        total_num_items,total_num_users = ratings.shape\n",
+    "\n",
+    "        full_user_features = add_removed_elements(predicted_user_features, valid_users_idx, total_num_users)\n",
+    "        full_item_features = add_removed_elements(predicted_item_features, valid_items_idx, total_num_items)\n",
+    "        \n",
+    "        added_users = unvalid_indexes(total_num_users, valid_users_idx)\n",
+    "        added_items = unvalid_indexes(total_num_items, valid_items_idx)\n",
+    "        \n",
+    "        nnz_items_per_user = train_full.getnnz(axis=0)\n",
+    "        nnz_users_per_item = train_full.getnnz(axis=1)\n",
+    "        \n",
+    "        nz_user_itemindices = []\n",
+    "        nz_item_userindices = []\n",
+    "        nz_ratings, nz_row_colindices, nz_col_rowindices = build_index_groups(train_full)\n",
+    "        \n",
+    "\n",
+    "        for row,colindices in nz_row_colindices:\n",
+    "            nz_item_userindices.append(colindices)\n",
+    "        for col,rowindices in nz_col_rowindices:\n",
+    "            nz_user_itemindices.append(rowindices)\n",
+    "\n",
+    "        full_item_features = fill_added_item_features(full_item_features, full_user_features, added_items, train_full, lambda_item, nnz_users_per_item, nz_item_userindices)  \n",
+    "        full_user_features = fill_added_user_features(full_item_features, full_user_features, added_users, train_full, lambda_user, nnz_items_per_user, nz_user_itemindices)\n",
+    "\n",
+    "    return full_user_features, full_item_features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "#min_num_ratings = 20\n",
+    "#full_user_features, full_item_features = constuct_full_features(predicted_user_features, predicted_item_features,\n",
+    "#                                                                valid_users, valid_items, min_num_ratings, train_full,\n",
+    "#                                                                lambda_user, lambda_item)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "total_num_items,total_num_users = ratings.shape\n",
+    "full_user_features = add_removed_elements(predicted_user_features, valid_users, total_num_users)\n",
+    "full_item_features = add_removed_elements(predicted_item_features, valid_items, total_num_items)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Submission"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(1000, 10000)"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "(full_item_features.T @ full_user_features).shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "from helpers import read_txt, deal_line\n",
+    "import csv\n",
+    "\n",
+    "def create_submission_csv(predictions, sample_submission_filename, submission_filename):\n",
+    "    \n",
+    "    sample_data = read_txt(sample_submission_filename)[1:]\n",
+    "    sample_data = [deal_line(line) for line in sample_data]\n",
+    "    \n",
+    "    with open(submission_filename, 'w') as csvfile:\n",
+    "        fieldnames = ['Id', 'Prediction']\n",
+    "        writer = csv.DictWriter(csvfile, delimiter=\",\", fieldnames=fieldnames)\n",
+    "        writer.writeheader()\n",
+    "        \n",
+    "        for user, item,fake_rating in sample_data:\n",
+    "            writer.writerow({'Id': \"r{}_c{}\".format(user,item), 'Prediction': predictions[item-1,user-1]})\n",
+    "            \n",
+    "        #WARNING NEW LINE IN OUPTUT FILE"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "create_submission_csv(full_item_features.T @ full_user_features,\"../Data/sampleSubmission.csv\",\"./submission.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "anaconda-cloud": {},
+  "kernelspec": {
+   "display_name": "Python [Root]",
+   "language": "python",
+   "name": "Python [Root]"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.5.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
