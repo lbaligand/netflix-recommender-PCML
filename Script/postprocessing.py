@@ -8,7 +8,6 @@ def add_removed_elements(features, valid_indices, num_elements):
     """Add removed users or items by replacing it with the mean
     """
     full_features = np.zeros((features.shape[0], num_elements)) + np.mean(features, axis=1).reshape((-1, 1))
-    print(features)
     for i, Vi in enumerate(valid_indices):
         full_features[:, Vi] = features[:, i]
     return full_features

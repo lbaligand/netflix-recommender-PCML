@@ -149,7 +149,6 @@ def split_data(ratings, num_items_per_user, num_users_per_item,
     valid_ratings = ratings[valid_items, :][:, valid_users]
 
     # initialization
-    p_test = 0.1
     train = valid_ratings.copy()
     test = valid_ratings.copy()
     train_full = ratings.copy()

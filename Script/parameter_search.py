@@ -38,7 +38,7 @@ def find_min_num_ratings (min_num_ratings_array,ratings,num_items_per_user,num_u
 
 
         full_user_features, full_item_features = constuct_full_features(predicted_user_features, predicted_item_features,
-                                                                        valid_users, valid_items, min_num_ratings, train_full,test_full,
+                                                                        valid_users, valid_items, min_num_ratings, train_full,
                                                                         lambda_user, lambda_item)
         full_user_features_array.append(full_user_features)
         full_item_features_array.append(full_item_features)
@@ -98,25 +98,3 @@ def finding_lambdas(train, test, lambda_user_array, lambda_item_array,num_featur
 
 
 
-
-def plot_every_lambda(results_test_lambda, lambda_table_user, lambda_table_item):
-    width = 12
-    height = 8
-    fig = plt.figure(figsize=(width, height))
-    ax1 = fig.add_subplot(1, 1, 1)
-    x = np.array(["b", "g", "r", "c", "m", "y", "k", "pink", "orange", "indigo", "brown", "gray", "lightblue"])
-    lambda_new_axis = np.linspace(lambda_table_item.min(), lambda_table_item.max(), 100)
-
-    for i, row in enumerate(results_test_lambda):
-        s = np.poly1d(np.polyfit(lambda_table_item, row, 7))
-        results_smooth = s(lambda_new_axis)
-        # results_smooth = itp.spline(lambda_table_item, row, lambda_new_axis)
-        ax1.plot(lambda_new_axis, results_smooth, color=x[i], label="lambda user = {}".format(lambda_table_user[i]))
-        # ax1.plot(lambda_table_item, row, color = x[i], label="lambda user = {}".format(lambda_table_user[i]))
-
-    ax1.set_xlabel("lambda item")
-    ax1.set_ylabel("rmse test")
-    ax1.legend(bbox_to_anchor=(1.05, 1), loc=1, borderaxespad=0.)
-    ax1.grid()
-    ax1.set_title("Test sample")
-    plt.savefig("estimation_lambda_complete")
