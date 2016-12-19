@@ -77,7 +77,16 @@ def calculate_mse(real_label, prediction):
 
 
 def compute_error(data, user_features, item_features, nz):
-    """compute the loss (MSE) of the prediction of nonzero elements."""
+    """compute the loss (RMSE) of the prediction of nonzero elements.
+
+    Args:
+        data: real label sparse matrix of size (num_items, num_users)
+        user_features: user matrix from the factorization of size (num_features, num_users)
+        item_features: item matrix from the factorization of size (num_features, num_items)
+        nz: non zero indices to compute RMSE
+    Return:
+        RMSE of the prediction
+    """
 
     # initalization
     prediction = (item_features.T).dot(user_features)

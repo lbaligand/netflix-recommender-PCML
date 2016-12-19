@@ -32,7 +32,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="script.ipynb" pinned="false" current-in-tab="true">
+      <file leaf-file-name="script.ipynb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Script/script.ipynb">
           <provider selected="true" editor-type-id="ipnb-editor">
             <state>
@@ -53,10 +53,20 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="helpers.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Script/helpers.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1655">
+              <caret line="83" column="90" selection-start-line="83" selection-start-column="90" selection-end-line="83" selection-end-column="90" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="matrix_factorization.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Script/matrix_factorization.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1581">
+            <state relative-caret-position="-2080">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -74,7 +84,9 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Script/run.py" />
+        <option value="$PROJECT_DIR$/Script/baseline_mean.py" />
         <option value="$PROJECT_DIR$/Script/script.ipynb" />
+        <option value="$PROJECT_DIR$/Script/helpers.py" />
       </list>
     </option>
   </component>
@@ -308,27 +320,36 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Script/run.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="470">
+          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="50" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Script/baseline_mean.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="1156">
+          <caret line="68" column="41" selection-start-line="68" selection-start-column="41" selection-end-line="68" selection-end-column="41" />
           <folding>
             <element signature="e#0#33#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Script/helpers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+    <entry file="file://$PROJECT_DIR$/Script/script.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Script/matrix_factorization.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1581">
+        <state relative-caret-position="-2080">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
@@ -346,20 +367,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Script/run.py">
+    <entry file="file://$PROJECT_DIR$/Script/helpers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="470">
-          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="50" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Script/script.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="13" />
+        <state relative-caret-position="-1655">
+          <caret line="83" column="90" selection-start-line="83" selection-start-column="90" selection-end-line="83" selection-end-column="90" />
+          <folding />
         </state>
       </provider>
     </entry>
