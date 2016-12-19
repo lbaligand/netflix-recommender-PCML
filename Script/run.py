@@ -17,11 +17,11 @@ valid_ratings, train, test, valid_users, valid_items, train_full, test_full = sp
 lambda_user = 0.15
 lambda_item = 0.04
 k = 10
-predicted_user_features_kten, predicted_item_features_kten, error_table, rmse_test = ALS(train, test, lambda_user, lambda_item, k)
+predicted_user_features_kten, predicted_item_features_kten, error_table, _ = ALS(train, test, lambda_user, lambda_item, k)
 lambda_user = 0.8
 lambda_item = 0.01
 k = 20
-predicted_user_features_ktwenty, predicted_item_features_ktwenty, error_table, rmse_test = ALS(train, test, lambda_user, lambda_item, k)
+predicted_user_features_ktwenty, predicted_item_features_ktwenty, error_table, _ = ALS(train, test, lambda_user, lambda_item, k)
 
 full_user_features_ktwenty, full_item_features_ktwenty = constuct_full_features(predicted_user_features_ktwenty, predicted_item_features_ktwenty,
                                                                 valid_users, valid_items, min_num_ratings, train_full,
