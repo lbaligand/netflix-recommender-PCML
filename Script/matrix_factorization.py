@@ -148,6 +148,6 @@ def ALS(train, test, lambda_user, lambda_item, k):
         rmse_test=-1
     else:
         rmse_test = compute_error(test, user_features, item_features, nz_test)
-    print("RMSE on test data: {}.".format(rmse_test))
+        print("RMSE on test data: {}.".format(rmse_test))
 
     return user_features, item_features, error_table, rmse_test

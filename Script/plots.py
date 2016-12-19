@@ -6,7 +6,17 @@ import matplotlib.pyplot as plt
 
 
 def plot_raw_data(ratings):
-    """plot the statistics result on raw rating data."""
+    """plot the statistics result on raw rating data.
+    
+    Args:
+        ratings: The ratings matrix of shape (num_item, num_user)
+    
+    Return:
+        num_items_per_user: Array of size num_user containing number of items
+                            per user.
+        num_users_per_item: Array of size num_item containing number of users
+                            per item.             
+    """
     # do statistics.
     num_items_per_user = np.array((ratings != 0).sum(axis=0)).flatten()
     num_users_per_item = np.array((ratings != 0).sum(axis=1).T).flatten()

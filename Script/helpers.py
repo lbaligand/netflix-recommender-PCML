@@ -154,7 +154,9 @@ def split_data(ratings, num_items_per_user, num_users_per_item,
     train_full = ratings.copy()
     test_full = ratings.copy()
 
-    # split the data and return train and test data.
+    # split the data and return train and test data: for every valid user,
+    # create a binary mask with probability p_test and set the non zero value
+    # of the test sparse matrix to zero.
     for u in range(valid_ratings.shape[1]):
         non_zero_ratings = valid_ratings[:, u].nonzero()
         mask_test = np.random.choice(2, non_zero_ratings[0].shape, p=[1 - p_test, p_test]).astype(bool)
