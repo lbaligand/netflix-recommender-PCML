@@ -49,8 +49,8 @@ def find_min_num_ratings (min_num_ratings_array,ratings,num_items_per_user,num_u
         nz_row_tr, nz_col_tr = train_full.nonzero()
         nz_full_train = list(zip(nz_row_tr, nz_col_tr))
 
-        rmse_train_full=compute_error(train_full, predicted_user_features, predicted_item_features, nz_full_train)
-        rmse_test_full=compute_error(test_full, predicted_user_features, predicted_item_features, nz_full_test)
+        rmse_train_full=compute_error(train_full, full_user_features, full_item_features, nz_full_train)
+        rmse_test_full=compute_error(test_full, full_user_features, full_item_features, nz_full_test)
         rmse_train_full_array.append(rmse_train_full)
         rmse_test_full_array.append(rmse_test_full)
     return full_item_features_array,full_user_features_array,rmse_train_full_array,rmse_test_full_array
