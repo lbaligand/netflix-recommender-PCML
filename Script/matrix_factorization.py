@@ -3,7 +3,7 @@ import scipy.sparse as sp
 from helpers import calculate_mse,init_MF,build_index_groups,compute_error
 
 
-def matrix_factorization_SGD(train, test,gamma,lambda_user=0.15,lambda_item=0.04,num_features=10):
+def matrix_factorization_SGD(train, test,gamma,lambda_user,lambda_item,num_features):
     """matrix factorization by SGD."""
     # define parameters
 
