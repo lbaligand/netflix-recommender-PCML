@@ -63,17 +63,17 @@ def plot_train_test_data(train, test):
     plt.show()
 
 
-def plot_num_features(num_features_array,rmse_train_array, rmse_test_array):
+def plot_parameter(parameter_array, rmse_train_array, rmse_test_array):
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 2, 1)
-    ax1.plot(num_features_array,rmse_train_array, color='red')
+    ax1.plot(parameter_array, rmse_train_array, color='red')
     ax1.set_xlabel("number of features")
     ax1.set_ylabel("RMSE train")
     ax1.grid()
 
     ax2 = fig.add_subplot(1, 2, 2)
-    ax2.plot(num_features_array,rmse_test_array, color='red')
+    ax2.plot(parameter_array, rmse_test_array, color='red')
     ax2.set_xlabel("number of features")
     ax2.set_ylabel("RMSE test")
     ax2.grid()

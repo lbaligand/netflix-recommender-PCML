@@ -28,13 +28,14 @@ def finding_gamma(train, test, gamma_array):
 def find_min_num_ratings (min_num_ratings_array,ratings,num_items_per_user,num_users_per_item,p_test,lambda_item, lambda_user,num_features):
     full_user_features_array=[]
     full_item_features_array=[]
-    rmse_test_full=[]
+    rmse_test_full_array=[]
+    rmse_train_full_array=[]
     for min_num_ratings in min_num_ratings_array:
         print("Minimum number of ratings : {}".format(min_num_ratings))
         valid_ratings, train, test, valid_users, valid_items, train_full, test_full = split_data(
             ratings, num_items_per_user, num_users_per_item, min_num_ratings, p_test)
 
-        predicted_user_features, predicted_item_features,_,rmse_test= ALS(train, test,lambda_user,lambda_item,num_features)
+        predicted_user_features, predicted_item_features,_,_= ALS(train, test,lambda_user,lambda_item,num_features)
 
 
         full_user_features, full_item_features = constuct_full_features(predicted_user_features, predicted_item_features,
@@ -43,8 +44,16 @@ def find_min_num_ratings (min_num_ratings_array,ratings,num_items_per_user,num_u
         full_user_features_array.append(full_user_features)
         full_item_features_array.append(full_item_features)
 
-        rmse_test_full.append(rmse_test)
-    return full_item_features_array,full_user_features_array,rmse_test_full
+        nz_row_te, nz_col_te = test_full.nonzero()
+        nz_full_test = list(zip(nz_row_te, nz_col_te))
+        nz_row_tr, nz_col_tr = train_full.nonzero()
+        nz_full_train = list(zip(nz_row_tr, nz_col_tr))
+
+        rmse_train_full=compute_error(train_full, predicted_user_features, predicted_item_features, nz_full_train)
+        rmse_test_full=compute_error(test_full, predicted_user_features, predicted_item_features, nz_full_test)
+        rmse_train_full_array.append(rmse_train_full)
+        rmse_test_full_array.append(rmse_test_full)
+    return full_item_features_array,full_user_features_array,rmse_train_full_array,rmse_test_full_array
 
 def finding_num_features(train,test,num_features_array):
     rmse_train_array=[]
