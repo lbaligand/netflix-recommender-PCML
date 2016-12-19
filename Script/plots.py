@@ -62,8 +62,27 @@ def plot_train_test_data(train, test):
     plt.savefig("train_test")
     plt.show()
 
+def plot_min_ratings(parameter_array, rmse_train_array, rmse_test_array):
+    fig = plt.figure()
 
-def plot_parameter(parameter_array, rmse_train_array, rmse_test_array):
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax1.plot(parameter_array, rmse_train_array, color='red')
+    ax1.set_xlabel("minimum number of ratings")
+    ax1.set_ylabel("RMSE train")
+    ax1.grid()
+
+    ax2 = fig.add_subplot(1, 2, 2)
+    ax2.plot(parameter_array, rmse_test_array, color='red')
+    ax2.set_xlabel("minimum number of ratings")
+    ax2.set_ylabel("RMSE test")
+    ax2.grid()
+
+    plt.tight_layout()
+    plt.savefig("minimum_number_of_ratings")
+    plt.show()
+
+
+def plot_number_features(parameter_array, rmse_train_array, rmse_test_array):
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 2, 1)
