@@ -1,6 +1,6 @@
 https://www.overleaf.com/7440044kqpbgdsbgpxy#/25821662/
 Louis: coder, result
-Pace: Discussion et post-processing, readme, envoyer le graphe des K
+Pace: Discussion et post-processing, readme, envoyer le graphe des K, tester sans min_number of ratings
 Chris : methodology + tester avec 180
 
 
