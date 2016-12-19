@@ -94,7 +94,23 @@ def finding_lambdas(train, test, lambda_user_array, lambda_item_array,num_featur
     return np.array(rmse_train_array), np.array(rmse_test_array)
 
 
+def finding_weighted_average(
+    predicted_user_features_x,predicted_item_features_x,
+    predicted_user_features_y,predicted_item_features_y):
+    a = np.linspace(0, 1.0, num=101)
+    rmse_min = 10
+    a_min = 0
 
+    for j in range(lambda_item_list.shape[0]):
+        for i, value in enumerate(a):
+            prediction_from_two = np.multiply(predicted_item_features_x.T @ predicted_user_features_x,
+                                              value) + np.multiply(
+                predicted_item_features_y.T @ predicted_user_features_y, 1 - value)
+            x, y = test.nonzero()
+            rmse = np.sqrt(calculate_mse(test[x, y], prediction_from_two[x, y]).sum() / (test.nnz))
+            if rmse_min > rmse:
+                rmse_min = rmse
+                a_min = value
 
-
-
+    print("RMSE={}".format(rmse_min))
+    return a_min

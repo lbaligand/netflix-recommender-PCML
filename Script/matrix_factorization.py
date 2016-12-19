@@ -6,7 +6,7 @@ from helpers import calculate_mse,init_MF,build_index_groups,compute_error
 def matrix_factorization_SGD(train, test,gamma,lambda_user=0.15,lambda_item=0.04,num_features=10):
     """matrix factorization by SGD."""
     # define parameters
-    
+
     num_epochs = 25  # number of full passes through the train set
     errors = [0]
 
