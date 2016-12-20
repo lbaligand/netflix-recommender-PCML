@@ -110,16 +110,16 @@ def finding_weighted_average(
     rmse_min = 10
     a_min = 0
 
-    for j in range(lambda_item_list.shape[0]):
-        for i, value in enumerate(a):
-            prediction_from_two = np.multiply(predicted_item_features_x.T @ predicted_user_features_x,
-                                              value) + np.multiply(
-                predicted_item_features_y.T @ predicted_user_features_y, 1 - value)
-            x, y = test.nonzero()
-            rmse = np.sqrt(calculate_mse(test[x, y], prediction_from_two[x, y]).sum() / (test.nnz))
-            if rmse_min > rmse:
-                rmse_min = rmse
-                a_min = value
+    #for j in range(lambda_item_list.shape[0]):
+    for i, value in enumerate(a):
+        prediction_from_two = np.multiply(predicted_item_features_x.T @ predicted_user_features_x,
+                                          value) + np.multiply(
+            predicted_item_features_y.T @ predicted_user_features_y, 1 - value)
+        x, y = test.nonzero()
+        rmse = np.sqrt(calculate_mse(test[x, y], prediction_from_two[x, y]).sum() / (test.nnz))
+        if rmse_min > rmse:
+            rmse_min = rmse
+            a_min = value
 
     print("RMSE={}".format(rmse_min))
     return a_min

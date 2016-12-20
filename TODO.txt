@@ -1,7 +1,9 @@
 https://www.overleaf.com/7440044kqpbgdsbgpxy#/25821662/
 Louis: coder, result
-Pace: Discussion et post-processing, readme, envoyer le graphe des K, tester sans min_number of ratings
+Pace:
 Chris : methodology + tester avec 180
+
+FINDING GAMMA AND FINDING WEIGHTE AVERAGE (ask Chris about implementation)
 
 
 
