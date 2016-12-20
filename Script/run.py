@@ -2,7 +2,7 @@ import numpy as np
 from helpers import split_data, create_submission_csv, load_data
 from matrix_factorization import ALS
 from plots import plot_raw_data
-from postprocessing import constuct_full_features
+from postprocessing import construct_full_features
 
 # Load the provided Data Set in the Data folder
 path_dataset = "../Data/data_train.csv"
@@ -32,12 +32,12 @@ predicted_user_features_k20, predicted_item_features_k20, error_table, _ = ALS(t
                                                                                lambda_item, k)
 
 # Reconstruct the full features matrices in order to have the matching prediction size
-full_user_features_k10, full_item_features_k10 = constuct_full_features(predicted_user_features_k10,
+full_user_features_k10, full_item_features_k10 = construct_full_features(predicted_user_features_k10,
                                                                         predicted_item_features_k10,
                                                                         valid_users, valid_items, min_num_ratings,
                                                                         train_full,
                                                                         lambda_user, lambda_item)
-full_user_features_k20, full_item_features_k20 = constuct_full_features(predicted_user_features_k20,
+full_user_features_k20, full_item_features_k20 = construct_full_features(predicted_user_features_k20,
                                                                         predicted_item_features_k20,
                                                                         valid_users, valid_items,
                                                                         min_num_ratings, train_full,

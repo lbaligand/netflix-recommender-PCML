@@ -15,19 +15,20 @@ def read_txt(path):
 
 def load_data(path_dataset):
     """Load data in text format, one rating per line, as in the kaggle competition."""
-    data = read_txt(path_dataset)[1:] # First line is ID,prediction
+    data = read_txt(path_dataset)[1:]  # First line is ID,prediction
     return preprocess_data(data)
 
+
 def deal_line(line):
-        pos, rating = line.split(',')
-        row, col = pos.split("_")
-        row = row.replace("r", "")
-        col = col.replace("c", "")
-        return int(row), int(col), float(rating)
+    pos, rating = line.split(',')
+    row, col = pos.split("_")
+    row = row.replace("r", "")
+    col = col.replace("c", "")
+    return int(row), int(col), float(rating)
+
 
 def preprocess_data(data):
     """preprocessing the text data, conversion to numerical array format."""
-    
 
     def statistics(data):
         row = set([line[0] for line in data])
@@ -45,7 +46,6 @@ def preprocess_data(data):
     for row, col, rating in data:
         ratings[row - 1, col - 1] = rating
     return ratings
-
 
 
 def group_by(data, index):
@@ -76,21 +76,19 @@ def calculate_mse(real_label, prediction):
     return 1.0 * t.dot(t.T)
 
 
-def compute_error(data, user_features, item_features, nz):
-    """compute the loss (RMSE) of the prediction of nonzero elements.
+def compute_error(data, user_features, item_features, nz_indices):
+    """ Compute the loss (RMSE) of the prediction of nonzero elements.
 
-    Args:
-        data: real label sparse matrix of size (num_items, num_users)
-        user_features: user matrix from the factorization of size (num_features, num_users)
-        item_features: item matrix from the factorization of size (num_features, num_items)
-        nz: non zero indices to compute RMSE
-    Return:
-        RMSE of the prediction
+    :param data: real label sparse matrix of size (num_items, num_users)
+    :param user_features: user matrix from the factorization of size (num_features, num_users)
+    :param item_features: item matrix from the factorization of size (num_features, num_items)
+    :param nz_indices: non zero indices to compute RMSE
+    :return: RMSE of the prediction
     """
 
-    # initalization
+    # initialization
     prediction = (item_features.T).dot(user_features)
-    x, y = zip(*nz)
+    x, y = zip(*nz_indices)
 
     # remove zero elements
     prediction_nz = prediction[x, y]
@@ -104,12 +102,18 @@ from scipy.sparse import lil_matrix
 
 
 def normalize(ratings):
+    """ Normalize the ratings matrix by subtracting the user mean and dividing by the standard deviation of the users
+
+    :param ratings: array matrix of size (num_items, num_users) giving the ratings between 1 and 5
+    :return: ratings normalized subtracting the user mean and dividing by the standard deviation of the users. The array
+     of user means and user standard deviations of size (num_users,).
+    """
     # array of train and test
     alg_ratings = ratings.todense()
 
     # index with zeros
-    I_ratings = np.zeros((ratings.shape[0], ratings.shape[1]))
-    I_ratings[alg_ratings > 0] = 1
+    mask_nz_ratings = np.zeros((ratings.shape[0], ratings.shape[1]))
+    mask_nz_ratings[alg_ratings > 0] = 1
 
     # mean and std dev column-wise
     mean_ratings_col = np.sum(alg_ratings, axis=0) / np.diff(ratings.tocsc().indptr)
@@ -122,32 +126,22 @@ def normalize(ratings):
     alg_ratings_norm = (alg_ratings - mean_ratings_col) / std_dev_col
 
     # normalizing and discarding previous zero values
-    normalized_ratings = lil_matrix(np.multiply((alg_ratings_norm), I_ratings))
+    normalized_ratings = lil_matrix(np.multiply((alg_ratings_norm), mask_nz_ratings))
 
     return normalized_ratings, mean_ratings_col, std_dev_col
 
 
 def split_data(ratings, num_items_per_user, num_users_per_item,
                min_num_ratings, p_test=0.1):
-    """split the ratings to training data and test data.
-    Args:
-        ratings:
-            The given loaded data that corresponds to the ratings of shape (num_items, num_users)
-        num_users_per_item:
-            Number of users corresponding to every items. shape = (num_items,)
-        num_items_per_user:
-            Number of items corresponding to every users. shape = (num_users,)
-        p_test:
-            Probability that one rating is in the test data
-        min_num_ratings:
-            all users and items we keep must have at least min_num_ratings per user and per item.
-    Returns:
-        valid_ratings:
-            Ratings that corresponds to the conditions
-        train:
-            The splitted train data
-        test:
-            The splitted test data
+    """ Split the ratings to training data and test data.
+
+    :param ratings: the given loaded data that corresponds to the ratings of shape (num_items, num_users)
+    :param num_items_per_user: number of users corresponding to every items. shape = (num_items,)
+    :param num_users_per_item: number of items corresponding to every users. shape = (num_users,)
+    :param min_num_ratings: all users and items we keep must have at least min_num_ratings per user and per item.
+    :param p_test: probability that one rating is in the test data
+    :return: valid ratings that have more than min_num_ratings and the split train data and test data.
+             valid_users, valid_items arrays of indices that fulfills the condition.
     """
     # set seed
     np.random.seed(988)
@@ -174,7 +168,7 @@ def split_data(ratings, num_items_per_user, num_users_per_item,
         train[test_idxs, u] = 0
         test[train_idxs, u] = 0
 
-    # split the data and return train and test data before threshold.
+    # split the full ratings data and return full train and test data before threshold.
     for u in range(ratings.shape[1]):
         non_zero_ratings = ratings[:, u].nonzero()
         mask_test = np.random.choice(2, non_zero_ratings[0].shape, p=[1 - p_test, p_test]).astype(bool)
@@ -188,32 +182,46 @@ def split_data(ratings, num_items_per_user, num_users_per_item,
     print("Total number of nonzero elements in test data:{v}".format(v=test.nnz))
     return valid_ratings, train, test, valid_users, valid_items, train_full, test_full
 
-def init_MF(train, num_features):  # CHRIS' Function
-    """init the parameter for matrix factorization."""
 
-    # initalization
+def init_MF(train, num_features):
+    """ Initialize the parameter for matrix factorization using Gaussian distribution
+
+    :param train: training data set of size (num_items, num_users)
+    :param num_features: number of features used in the matrix factorization, also called k
+    :return: user_features of size (num_features, num_users) and item_features of size (num_features, item_users)
+    """
+
+    # Initialization using a Gaussian distribution
     num_items, num_users = train.shape
     item_features = np.random.randn(num_features, num_items)
     user_features = np.random.randn(num_features, num_users)
 
-    # mean of for each item
+    # Mean of for each item
     sums_train = train.sum(axis=1).reshape(num_items, )
     counts_train = np.diff(train.tocsr().indptr)  # counts number of non zero value for each row
     mean_train_item = sums_train / counts_train
 
+    # Set the first line of item_features to its mean
     item_features[0, :] = mean_train_item
 
     return user_features, item_features
 
+
 import csv
 
-def create_submission_csv(predictions,sample_submission_filename, submission_filename):
+
+def create_submission_csv(predictions, sample_submission_filename, submission_filename):
+    """ Create the submission file csv following the template sampleSubmission.csv
+
+    :param predictions: prediction matrix of size (num_items, num_users)
+    :param sample_submission_filename: path to the sample submission file called sampleSubmission.csv
+    :param submission_filename: path and name to the submission file csv
+    """
     sample_data = read_txt(sample_submission_filename)[1:]
     sample_data = [deal_line(line) for line in sample_data]
     with open(submission_filename, 'w') as csvfile:
         fieldnames = ['Id', 'Prediction']
         writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
         writer.writeheader()
-        for user,item,fake_rating in sample_data:
-            writer.writerow({'Id': "r{}_c{}".format(user,item), 'Prediction': predictions[item-1,user-1]})
-        #WARNING NEW LINE IN OUPTU FILE
+        for user, item, fake_rating in sample_data:
+            writer.writerow({'Id': "r{}_c{}".format(user, item), 'Prediction': predictions[item - 1, user - 1]})

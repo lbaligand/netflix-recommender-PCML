@@ -5,15 +5,10 @@ import scipy.sparse as sp
 
 def baseline_global_mean(train, test):
     """ Baseline method: use the global mean.
-    Args:
-        train:
-            Train data array of shape (num_items, num_users)
-        test:
-            Test data array of shape (num_items, num_users)
-    Returns:
-        global_mean
-        RMSE of training data
-        RMSE of test data
+
+    :param train: train data array of shape (num_items, num_users)
+    :param test: test data array of shape (num_items, num_users)
+    :return: global_mean, the average of all the ratings, the RMSE on the train and test sets
     """
     # Compute the global mean
     global_mean = train.sum() / train.nnz
@@ -27,17 +22,11 @@ def baseline_global_mean(train, test):
 
 
 def baseline_user_mean(train, test):
-    """baseline method: use the user means as the prediction.
-    Args:
-        train:
-            Train data array of shape (num_items, num_users)
-        test:
-            Test data array of shape (num_items, num_users)
-    Returns:
-        means:
-            Array of user's means. shape = (num_users,)
-        RMSE of training data
-        RMSE of test data
+    """ Baseline method: use the user means as the prediction.
+
+    :param train: train data array of shape (num_items, num_users)
+    :param test: test data array of shape (num_items, num_users)
+    :return: array of user's means with shape = (num_users,). The RMSE on the train and test sets
     """
     # Compute mean for every users
     means = np.array(train.sum(axis=0) / train.getnnz(axis=0))[0]
@@ -51,17 +40,11 @@ def baseline_user_mean(train, test):
 
 
 def baseline_item_mean(train, test):
-    """baseline method: use item means as the prediction.
-    Args:
-        train:
-            Train data array of shape (num_items, num_users)
-        test:
-            Test data array of shape (num_items, num_users)
-    Returns:
-        means:
-            Array of item's means. shape = (num_items,)
-        RMSE of training data
-        RMSE of test data
+    """ Baseline method: use item means as the prediction.
+
+    :param train: train data array of shape (num_items, num_users)
+    :param test: test data array of shape (num_items, num_users)
+    :return: array of item's means with shape = (num_items,). The RMSE on the train and test sets
     """
     # Compute mean for every users
     means = np.array(train.sum(axis=1).T / train.getnnz(axis=1))[0]
