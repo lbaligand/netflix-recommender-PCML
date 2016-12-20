@@ -7,7 +7,7 @@ from matrix_factorization import ALS,matrix_factorization_SGD
 
 
 
-def finding_gamma(train, test, gamma_array):
+def finding_gamma(train, test, gamma_array, lambda_user, lambda_item, num_features):
     rmse_train_array = []
     rmse_test_array = []
 
@@ -18,7 +18,7 @@ def finding_gamma(train, test, gamma_array):
 
     for gamma in gamma_array:
         print("predicting for gamma {}".format(gamma))
-        predicted_user_features, predicted_item_features = matrix_factorization_SGD(train, test, gamma)
+        predicted_user_features, predicted_item_features = matrix_factorization_SGD(train, test, gamma  , lambda_user, lambda_item, num_features)
         rmse_train_array.append(compute_error(train, predicted_user_features, predicted_item_features, nz_train))
         rmse_test_array.append(compute_error(test, predicted_user_features, predicted_item_features, nz_test))
     print(np.array(rmse_test_array))
