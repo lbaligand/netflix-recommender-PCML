@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.sparse as sp
 import matplotlib.pyplot as plt
-from helpers import compute_error, split_data
+from helpers import compute_error, split_data, calculate_mse
 from postprocessing import construct_full_features
 from matrix_factorization import ALS, matrix_factorization_SGD
 
@@ -37,7 +37,7 @@ def finding_gamma(train, test, gamma_array, lambda_user, lambda_item, num_featur
 
 def find_min_num_ratings(min_num_ratings_array, ratings, num_items_per_user, num_users_per_item, p_test, lambda_item,
                          lambda_user, num_features):
-    
+
     full_user_features_array = []
     full_item_features_array = []
     rmse_test_full_array = []
@@ -116,7 +116,7 @@ def finding_lambdas(train, test, lambda_user_array, lambda_item_array, num_featu
     return np.array(rmse_train_array), np.array(rmse_test_array)
 
 
-def finding_weighted_average(predictions_a, predictions_b):
+def finding_weighted_average(test,predictions_a, predictions_b):
     """
 
     :param predictions_a:

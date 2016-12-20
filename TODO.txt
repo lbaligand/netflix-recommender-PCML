@@ -1,6 +1,6 @@
 https://www.overleaf.com/7440044kqpbgdsbgpxy#/25821662/
 Louis: coder, result
-Pace:
+Pace: parler de combiner sgd et ALS. Parler plus de 180 features. Que grid search prend trop de temps.
 Chris : methodology + tester avec 180
 
 FINDING GAMMA AND FINDING WEIGHTE AVERAGE (ask Chris about implementation)
