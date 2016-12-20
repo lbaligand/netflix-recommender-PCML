@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sp
 import matplotlib.pyplot as plt
 from helpers import compute_error,split_data
-from postprocessing import constuct_full_features
+from postprocessing import construct_full_features
 from matrix_factorization import ALS,matrix_factorization_SGD
 
 
@@ -38,7 +38,7 @@ def find_min_num_ratings (min_num_ratings_array,ratings,num_items_per_user,num_u
         predicted_user_features, predicted_item_features,_,_= ALS(train, test,lambda_user,lambda_item,num_features)
 
 
-        full_user_features, full_item_features = constuct_full_features(predicted_user_features, predicted_item_features,
+        full_user_features, full_item_features = construct_full_features(predicted_user_features, predicted_item_features,
                                                                         valid_users, valid_items, min_num_ratings, train_full,
                                                                         lambda_user, lambda_item)
         full_user_features_array.append(full_user_features)
