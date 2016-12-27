@@ -3,11 +3,13 @@ Adrian Pace
 Christophe Windler
 Louis Baligand
 
+Please make sure that the train data is in the /Data folder
+
 The prediction can be optained by running the script/run.py. It will create the submission file script/submission.csv.
 
 The folder data contains the sample_submission and the data_train csv files.
 
-The folder script contains our implementation.
+The folder script contains our implementation:
 
 baseline_mean.py contains the methods calculating the baseline means
 helpers.py contains the functions provided in lab10 and some custom functions such as normalization, data split, matrix initialization and submission file creation
