@@ -1,4 +1,5 @@
 # Project 2 Pattern Classification and Machine Learning
+PCML class at EPFL in 2016
 ## Recommender System trained on Netflix Data
 ### Authors
 * Adrian Pace
